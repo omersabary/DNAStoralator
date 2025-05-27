@@ -52,7 +52,7 @@ class Worker(QObject):
 class SimulateErrorsWorker(Worker):
 
     def __init__(self, general_errors, per_base_errors, input_dna_path, stutter_chosen, dist_info, error_output_path,
-                 shuffled_output_path):
+                 shuffled_output_path, errorPronePatterns):
         # error_output_path will be stored in input_path for generalization of Worker super class
         super(SimulateErrorsWorker, self).__init__(error_output_path)
         self.general_errors = general_errors
@@ -62,12 +62,12 @@ class SimulateErrorsWorker(Worker):
         self.dist_info = dist_info
         self.shuffled_output_path = shuffled_output_path
         self.temp_file = remove_extension(self.input_path) + '_temp.txt'
-
+        self.errorPronePatterns =errorPronePatterns
         # parse value to list if type is vector:
         if self.dist_info is not None and self.dist_info['type'] == 'vector':
             self.dist_info['value'] = ast.literal_eval(self.dist_info['value'])
         self.simulator = Simulator(self.general_errors, self.per_base_errors, self.inputDNAPath, self.stutter_chosen,
-                                   self.dist_info, self.input_path, self.shuffled_output_path, self.temp_file)
+                                   self.dist_info, self.input_path, self.shuffled_output_path, self.temp_file, self.errorPronePatterns)
 
     def work(self):
         try:

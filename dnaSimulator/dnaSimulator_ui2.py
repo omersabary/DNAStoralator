@@ -58,6 +58,23 @@ class Ui_dnaSimulator(object):
         self.browse_PushButton.setObjectName("browse_PushButton")
         self.file_input_horizontalLayout.addWidget(self.browse_PushButton)
         self.verticalLayout_4.addLayout(self.file_input_horizontalLayout)
+        ## OMER ADD
+        self.horizontalLayout_11 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_11.setObjectName("horizontalLayout_11")
+        self.json_load_label_2 = QtWidgets.QLabel(self.scrollAreaWidgetContents_7)
+        self.json_load_label_2.setObjectName("json_load_label_2")
+        self.horizontalLayout_11.addWidget(self.json_load_label_2)
+        self.json_path_lineEdit_2 = QtWidgets.QLineEdit(self.scrollAreaWidgetContents_7)
+        self.json_path_lineEdit_2.setObjectName("json_path_lineEdit_2")
+        self.horizontalLayout_11.addWidget(self.json_path_lineEdit_2)
+        self.json_pushBrowse_2 = QtWidgets.QPushButton(self.scrollAreaWidgetContents_7)
+        self.json_pushBrowse_2.setObjectName("json_pushBrowse_2")
+        self.horizontalLayout_11.addWidget(self.json_pushBrowse_2)
+        #self.json_pushLoad_2 = QtWidgets.QPushButton(self.scrollAreaWidgetContents_7)
+        #self.json_pushLoad_2.setObjectName("json_pushLoad_2")
+        #self.horizontalLayout_11.addWidget(self.json_pushLoad_2)
+        self.verticalLayout_4.addLayout(self.horizontalLayout_11)
+        ## OMER END
         self.horizontalLayout_10 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_10.setObjectName("horizontalLayout_10")
         self.json_load_label = QtWidgets.QLabel(self.scrollAreaWidgetContents_7)
@@ -985,10 +1002,16 @@ class Ui_dnaSimulator(object):
     def retranslateUi(self, dnaSimulator):
         _translate = QtCore.QCoreApplication.translate
         dnaSimulator.setWindowTitle(_translate("dnaSimulator", "MainWindow"))
-        self.load_Input_Label.setText(_translate("dnaSimulator", "Load input file:"))
+        self.load_Input_Label.setText(_translate("dnaSimulator", "Load Input File:"))
         self.file_path_lineEdit.setPlaceholderText(_translate("dnaSimulator", "File path"))
         self.browse_PushButton.setText(_translate("dnaSimulator", "Browse"))
-        self.json_load_label.setText(_translate("dnaSimulator", "Load Configuration (optional):"))
+        ## OMER ADD
+        self.json_load_label_2.setText(_translate("dnaSimulator", "Load Error-prone Patterns (optional):"))
+        self.json_path_lineEdit_2.setPlaceholderText(_translate("dnaSimulator", "File path"))
+        self.json_pushBrowse_2.setText(_translate("dnaSimulator", "Browse"))
+        #self.json_pushLoad_2.setText(_translate("dnaSimulator", "Load"))
+        ## OMER END
+        self.json_load_label.setText(_translate("dnaSimulator", "Load Error Configuration (optional):"))
         self.json_path_lineEdit.setPlaceholderText(_translate("dnaSimulator", "File path"))
         self.json_pushBrowse.setText(_translate("dnaSimulator", "Browse"))
         self.json_pushLoad.setText(_translate("dnaSimulator", "Load"))

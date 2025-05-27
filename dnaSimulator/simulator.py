@@ -11,6 +11,7 @@ import edlib
 from custom_random_variable import CustomRvContinuous
 import random
 from filepath import  *
+import re
 
 
 class Simulator:
@@ -60,7 +61,7 @@ class Simulator:
             skewness).
     """
     def __init__(self, total_error_rates, base_error_rates, input_path, is_stutter_method=False, distribution_info=None,
-                 error_output_path='', shuffled_output_path='', temp_path=''):
+                 error_output_path='', shuffled_output_path='', temp_path='', errorPronePatterns=[]):
         """
         @param total_error_rates: Dictionary of the total error rates used in the simulation.
             Example of a dictionary:
@@ -130,6 +131,7 @@ class Simulator:
         self.max_copies = 499
 
         self.to_terminate = False
+        self.errorPronePatterns = errorPronePatterns
 
     def simulate_errors(self, report_func):
         """
@@ -164,8 +166,8 @@ class Simulator:
         if self.distribution_info is None:
             # generate number of copies for each strand, as the number of strands:
             # https://stackoverflow.com/questions/24854965/create-random-numbers-with-left-skewed-probability-distribution
-            self.max_copies = 499
-            skewness = 10  # Negative values are left skewed, positive values are right skewed.
+            self.max_copies = 35#499
+            skewness = 5 #10  # Negative values are left skewed, positive values are right skewed.
             self.random = skewnorm.rvs(a=skewness, loc=self.max_copies, size=num_values)  # Skewnorm function
             self.random = self.random - min(self.random)  # Shift the set so the minimum value is equal to zero.
             self.random = self.random / max(self.random)  # Standardize all the values between 0 and 1.
@@ -207,7 +209,65 @@ class Simulator:
                         num_copies = self.random[i]
                     else:
                         num_copies = random.randint(self.min_copies, self.max_copies + 1)
-                    num_copies = (int)(num_copies)
+                    ## OMER ADD
+                    total_error_increase = 1.0
+                    if len(self.errorPronePatterns) > 0:
+                        # Filter patterns to include only those with A, C, G, T characters
+                        valid_patterns = [p for p in self.errorPronePatterns if re.fullmatch(r'[ACGT]+', p)]
+                        combined_pattern = '|'.join(map(re.escape, valid_patterns))
+                        matches = re.findall(combined_pattern, original_strand)
+                        if len(matches) > 0:
+                            for match in matches:
+                                total_error_increase += self.errorPronePatterns.get(match, 0)
+                    gc_count = sum(1 for base in original_strand if base in 'GCgc')
+                    gc_content = gc_count / len(original_strand)
+                    if (
+                            'GC_min' in self.errorPronePatterns and
+                            'GC_max' in self.errorPronePatterns and
+                            'GC_increase' in self.errorPronePatterns
+                    ):
+                        print("GC supplied")
+                        GC_min = self.errorPronePatterns['GC_min']
+                        GC_max = self.errorPronePatterns['GC_max']
+                        GC_increse = self.errorPronePatterns['GC_increase']
+
+                        if (
+                                isinstance(GC_min, (int, float)) and 0 <= GC_min <= 1 and
+                                isinstance(GC_max, (int, float)) and GC_min <= GC_max <= 1 and
+                                isinstance(GC_increse, (int, float)) and 0 <= GC_increse <= 10000
+                        ):
+                            #print("GC supplied OK")
+
+                            if  GC_min > gc_content or gc_content > GC_max:
+                                total_error_increase = total_error_increase + GC_increse
+                        else:
+                            #print("GC supplied not OK")
+
+                            if 0.3 > gc_content or gc_content > 0.7:
+                                total_error_increase = total_error_increase + 0.5
+                    else:
+                        #print("GC NOT supplied")
+                        if 0.3 > gc_content or gc_content > 0.7:
+                            total_error_increase = total_error_increase + 0.5
+
+                    if total_error_increase>1.0:
+                        print(total_error_increase)
+                        print("orig")
+                        print(self.total_error_rates)
+                        total_error_rates_s = {k: v * total_error_increase for k, v in self.total_error_rates.items()}
+                        print(total_error_rates_s)
+                        # Check if the sum exceeds 1.0
+                        total_sum = sum(total_error_rates_s.values())
+                        print(total_sum)
+                        if total_sum > 1.0:
+                            # Scale down proportionally
+                            scaling_factor = 1.0 / total_sum
+                            total_error_rates_s = {k: v * scaling_factor for k, v in total_error_rates_s.items()}
+                        self.total_error_rates=total_error_rates_s
+                        print(self.total_error_rates)
+                    ##print(self.base_error_rates)
+                    ##print(self.long_deletion_length_rates)
+                    ## OMER END
                     # for each strand, do the simulation on a copy of it num_copies (the generated number of copies) times:
                     for j in range(num_copies):
 

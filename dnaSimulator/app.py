@@ -34,6 +34,8 @@ class dnaSimulator(QMainWindow, dnaSimulator_ui2.Ui_dnaSimulator):
         # set the title
         self.setWindowTitle('DNA Storalator')
         self.inputDNAPath = ""
+        self.errorPronePatterns = "" ## OMER ADD
+
 
         # initialize general errors
         self.general_errors = {
@@ -129,6 +131,7 @@ class dnaSimulator(QMainWindow, dnaSimulator_ui2.Ui_dnaSimulator):
 
         # connect push buttons to an event
         self.browse_PushButton.clicked.connect(self.openFileDialog)
+        self.json_pushBrowse_2.clicked.connect(self.openFileDialog2) ## OMER ADD
 
         self.run_error_simulator_PushButton.clicked.connect(self.runErrorSimulator)
         self.run_clustering_pushButton.clicked.connect(self.runClustering)
@@ -945,6 +948,10 @@ class dnaSimulator(QMainWindow, dnaSimulator_ui2.Ui_dnaSimulator):
         self.inputDNAPath, _ = QFileDialog.getOpenFileName(self, "Select an input file", './', filter="*.txt")
         self.file_path_lineEdit.setText(self.inputDNAPath)
 
+    def openFileDialog2(self):
+        self.errorPronePatterns, _ = QFileDialog.getOpenFileName(self, "Select a json file with dictionary that specifices error-prone patterns and their corresponding error increase in format PATTERN:X.XX", './', filter="*.json")
+        self.json_path_lineEdit_2.setText(self.errorPronePatterns)
+
     def set_working_dirs(self):
         self.input_dir = "input"
         self.output_dir = "output"
@@ -1001,6 +1008,7 @@ class dnaSimulator(QMainWindow, dnaSimulator_ui2.Ui_dnaSimulator):
 
     def runErrorSimulator(self):
         self.inputDNAPath = self.file_path_lineEdit.text()
+        self.errorPronePatterns = self.json_path_lineEdit_2.text() ## OMER ADD
         while True:
             if not os.path.isfile(self.inputDNAPath):
                 print('The chosen input file doesn\'t exist')
@@ -1008,6 +1016,20 @@ class dnaSimulator(QMainWindow, dnaSimulator_ui2.Ui_dnaSimulator):
                 self.file_path_lineEdit.clear()
                 break
             else:
+                ## OMER ADD
+                if self.errorPronePatterns == "" or not os.path.isfile(self.errorPronePatterns):
+                    print('The chosen input error prone patterns file doesn\'t exist')
+                    self.errorPronePatterns = {}
+                else:
+                    with open(self.errorPronePatterns, 'r') as f:
+                        ErrPronDic = json.load(f)
+                        ErrPronDic_Filter = {k: v for k, v in ErrPronDic.items() if isinstance(v, (int, float)) and 0 <= v <= 10000000}
+
+                    #with open(self.errorPronePatterns, 'r') as ErrPronfile:
+                    #    listErrorPronePatterns = [line.rstrip() for line in ErrPronfile]
+                    self.errorPronePatterns = ErrPronDic_Filter ## listErrorPronePatterns
+                print(self.errorPronePatterns)
+                ## OMER END
                 if self.user_defined_copied_checkBox.isChecked():
                     sent_distance_info = self.dist_info
                     if sent_distance_info['type'] == 'continuous' and sent_distance_info['min'] >= sent_distance_info['max']:
@@ -1023,7 +1045,7 @@ class dnaSimulator(QMainWindow, dnaSimulator_ui2.Ui_dnaSimulator):
 
                 error_worker = SimulateErrorsWorker(self.general_errors, self.per_base_errors, self.inputDNAPath,
                                                     self.default_radioButton.isChecked(), sent_distance_info,
-                                                    self.error_output, self.shuffled_output)
+                                                    self.error_output, self.shuffled_output, self.errorPronePatterns)  ## OMER ADD Last Arguemnt
                 # all currently active workers are stored at one place for management:
                 self.error_workers.append(error_worker)
                 # connect relevant signals:
