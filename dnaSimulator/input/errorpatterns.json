@@ -1,0 +1,9 @@
+{
+"ATCATACTGCGCACGTAGACAC" : 0.05,
+"TGTGCTGC" : 0.2,
+"CACGAGATCTCAG" : 0.22,
+"TCTGAGTCGTCGTGTGTCTAGTGT" : 0.25,
+"GC_min": 0.3,
+"GC_max": 0.7,
+"GC_increase": 0.5
+}
