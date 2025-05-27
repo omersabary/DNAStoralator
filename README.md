@@ -93,3 +93,6 @@ In addition, the following will be generated **after running the errors simulato
     * 📄 output-results-success.txt
 
 The output folder holds all outputs from the app: evyat.txt & errors_shuffled.txt from the error simulator, and the rest from the reconstruction. The clustering modifies the evyat.txt from this directory.
+
+May 2025 - Explanation on the new feature of error-prone motifs and GC content can be found in our wiki page:
+https://github.com/gadihh/DNAStoralator/wiki/Error%E2%80%90Prone-Motifs-&-GC-Content%E2%80%90Based-Error-Adjustment
